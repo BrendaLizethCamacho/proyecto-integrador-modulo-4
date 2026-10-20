@@ -1,0 +1,80 @@
+/* ========================================= 
+	RESETEO GENERAL
+    Aplicamos estas propiedades a todos los elementos de la página
+========================================= */
+* {
+    /* Hace que padding y border formen parte del tamaño total del elemento */
+    box-sizing: border-box;
+    
+    /* Eliminamos los márgenes predeterminados del navegador */
+    margin: 0;
+    
+    /* Eliminamos los espacios internos predeterminados */
+    padding: 0;
+}
+
+/* ========================================= 
+	CONFIGURACIÓN GENERAL DE LA PÁGINA 
+========================================= */
+body {
+    /* La página tendrá como mínimo la altura completa de la ventana del navegador */
+    min-height: 100vh;
+
+    /* Fuentes principales utilizadas por la aplicación */
+    font-family: Arial, Helvetica, sans-serif;
+
+    /* Color de fondo general */
+    background-color: #f4f6f8;
+
+    /* Color principal del texto */
+    color: #1f2937;
+}
+
+
+/* ========================================= 
+		CONTENEDOR PRINCIPAL 
+========================================= */
+.app {
+    /* El contenedor ocupará como mínimo toda la altura de la ventana */
+    min-height: 100vh;
+    
+    /* Activamos Flexbox para organizar los elementos internos */
+    display: flex;
+
+    /* Colocamos los elementos verticalmente con flex-direction*/
+    flex-direction: column;
+
+    /* Centramos horizontalmente los elementos con aling.-items */
+    align-items: center;
+
+    /* Centramos verticalmente los elementos justify-content */
+    justify-content: center;
+
+
+    /* Espacio entre los elementos internos */
+    gap: 16px;
+
+
+    /* Espacio interno del contenedor */
+    padding: 24px;
+
+
+    /* Centramos el contenido de texto */
+    text-align: center;
+}
+
+/* ========================================= 
+		TÍTULO PRINCIPAL 	
+========================================= */
+/* Tamaño del título principal */
+.app h1 {
+    font-size: 2rem;
+}
+
+/* ========================================= 
+			PÁRRAFOS 
+========================================= */
+/* Tamaño del texto */
+.app p {
+    font-size: 1rem;
+}
