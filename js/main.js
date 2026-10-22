@@ -18,7 +18,7 @@ Comprobación en consola para validar que la importación
 del script desde el HTML fue exitosa */
 
 // Versión actual del proyecto
-console.log("Sistema de Gestión Bancaria - v0.2.0");
+console.log("Sistema de Gestión Bancaria - v0.4.0");
 
 // Validación de campo para verificar que se obtenga true
 console.log("Campo obligatorio:", validarCampoObligatorio("Banco Digital"));
@@ -42,6 +42,9 @@ console.log("Fecha:", formatDate(new Date()));
 import { Cuenta } from "./models/Cuenta.js";
 import { Movimiento } from "./models/Movimiento.js";
 import { Usuario } from "./models/Usuario.js";
+import { Banco } from "./models/Banco.js";
+
+const bancoDemo = new Banco();
 
 /** USUARIO 
 Generación del primer objeto a partir del modelo Usuario */
@@ -51,8 +54,10 @@ const usuarioDemo = new Usuario({
     telefono: "7225015630",
     password: "123456"
 })
+// Se agrega el usuario
+bancoDemo.agregarUsuario(usuarioDemo)
 // Se muestra el usuario creado
-console.log("Usuario:", usuarioDemo)
+console.log("Usuarios registrados:", bancoDemo.usuarios)
 
 /** CUENTA
 Generación de una cuenta y la asociación al usuario utilizando su ID */
@@ -60,29 +65,42 @@ const cuentaDemo = new Cuenta({
   numeroCuenta: "123456789101",
   usuarioId: usuarioDemo.id,
 })
-// Se muestra la cuenta creada
-console.log("Cuenta:", cuentaDemo)
+// Se agrega la cuenta
+bancoDemo.agregarCuenta(cuentaDemo)
 
 /** DEPÓSITO
 Generación de un depósito desde la cuenta creada utilizando 
-el método depositar() */
-cuentaDemo.depositar(1000)
-// Se muestra el nuevo saldo usando formatCurrency()
-console.log("Saldo después del depósito:", formatCurrency(cuentaDemo.saldo))
-
-/** MOVIMIENTO
-Generación de un depósito mediante el modelo movimiento */
-const movimientoDemo = new Movimiento({
-  tipo: "DEPOSITO",
+el método realizarDeposito() */
+const depositoDemo = bancoDemo.realizarDeposito({
+  cuentaId: cuentaDemo.id,
   monto: 1000,
-  descripcion: "Primer depósito",
-  // Asociación del movimiento con la cuenta creada
-  cuentaOrigen: cuentaDemo.id,
-  saldoResultante: cuentaDemo.saldo
+  descripcion: "Primer depósito"
 })
-// Se muestra el movimiento creado
-console.log("Movimiento:", movimientoDemo)
+// Se muestra el saldo
+console.log("Saldo actual:", formatCurrency(cuentaDemo.saldo))
+// Se muestra el movimiento
+console.log("Movimiento:", depositoDemo)
+// Se muestra el historial
+console.log("Movimientos registrados:", bancoDemo.movimientos)
 
-// Comprobación de las relaciones entre objetos
-console.log(usuarioDemo.id === cuentaDemo.usuarioId)
-console.log(cuentaDemo.id === movimientoDemo.cuentaOrigen)
+// BÚSQUEDA POR ID
+const usuarioEncontrado = bancoDemo.buscarUsuarioPorId(usuarioDemo.id)
+// Se muestra si lo encontró
+console.log("Usuario encontrado:", usuarioEncontrado)
+console.log(usuarioEncontrado === usuarioDemo)
+
+// OBTENER CUENTAS DE USUARIOS
+const cuentasUsuario = bancoDemo.obtenerCuentasDeUsuario(usuarioDemo.id)
+// Se muestran las cuentas
+console.log("Cuentas del usuario:", cuentasUsuario)
+
+/** PRUEBA DE ERROR
+Depósito con un monto inválido */
+try {
+  bancoDemo.realizarDeposito({
+    cuentaId: cuentaDemo.id,
+    monto: -1000
+  })
+} catch (error) {
+  console.log("Error prueba:", error.message)
+}
