@@ -46,4 +46,4 @@ Durante las siguientes versiones se desarrollarán:
 
 ## Versión actual
 
-v0.2.0 — Arquitectura modular y utilidades base.
+v0.3.0 — Modelado del dominio con Programación Orientada a Objetos.

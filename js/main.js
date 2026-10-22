@@ -13,8 +13,8 @@ import {
   formatDate,
 } from "./utils/formatters.js";
 
-/** PUNTO DE ENTRADA DE LA APLICACIÓN */
-/** Comprobación en consola para validar que la importación 
+/** PUNTO DE ENTRADA DE LA APLICACIÓN 
+Comprobación en consola para validar que la importación 
 del script desde el HTML fue exitosa */
 
 // Versión actual del proyecto
@@ -37,3 +37,52 @@ console.log("Formateo del monto:", formatCurrency(1000));
 
 // Preparación de la fecha
 console.log("Fecha:", formatDate(new Date()));
+
+/** IMPORTACIÓN DE LOS MODELOS */
+import { Cuenta } from "./models/Cuenta.js";
+import { Movimiento } from "./models/Movimiento.js";
+import { Usuario } from "./models/Usuario.js";
+
+/** USUARIO 
+Generación del primer objeto a partir del modelo Usuario */
+const usuarioDemo = new Usuario({
+    nombre: "Brenda Camacho",
+    email: "brendacamacho@gmail.com",
+    telefono: "7225015630",
+    password: "123456"
+})
+// Se muestra el usuario creado
+console.log("Usuario:", usuarioDemo)
+
+/** CUENTA
+Generación de una cuenta y la asociación al usuario utilizando su ID */
+const cuentaDemo = new Cuenta({
+  numeroCuenta: "123456789101",
+  usuarioId: usuarioDemo.id,
+})
+// Se muestra la cuenta creada
+console.log("Cuenta:", cuentaDemo)
+
+/** DEPÓSITO
+Generación de un depósito desde la cuenta creada utilizando 
+el método depositar() */
+cuentaDemo.depositar(1000)
+// Se muestra el nuevo saldo usando formatCurrency()
+console.log("Saldo después del depósito:", formatCurrency(cuentaDemo.saldo))
+
+/** MOVIMIENTO
+Generación de un depósito mediante el modelo movimiento */
+const movimientoDemo = new Movimiento({
+  tipo: "DEPOSITO",
+  monto: 1000,
+  descripcion: "Primer depósito",
+  // Asociación del movimiento con la cuenta creada
+  cuentaOrigen: cuentaDemo.id,
+  saldoResultante: cuentaDemo.saldo
+})
+// Se muestra el movimiento creado
+console.log("Movimiento:", movimientoDemo)
+
+// Comprobación de las relaciones entre objetos
+console.log(usuarioDemo.id === cuentaDemo.usuarioId)
+console.log(cuentaDemo.id === movimientoDemo.cuentaOrigen)
