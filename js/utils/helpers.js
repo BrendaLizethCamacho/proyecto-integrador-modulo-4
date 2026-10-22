@@ -10,3 +10,14 @@ export function generarId() {
     criptográficamente fuertes*/ 
     return(crypto.randomUUID())
 }
+
+/** GENERAR NÚMERO DE CUENTA DE 12 DÍGITOS */
+export function generarNumeroCuenta() {
+    let numeroCuenta = '';
+	/** GENERAR 12 DÍGITOS ALEATORIOS */
+    for (let i = 0; i < 12; i += 1) {
+        numeroCuenta += Math.floor(Math.random() * 10)
+    }
+	/** DEVOLVER RESULTADO */
+    return numeroCuenta;
+}

@@ -2,7 +2,7 @@
 
 Proyecto integrador correspondiente al Módulo 4.
 
-El objetivo es desarrollar progresivamente un sistema bancario utilizando JavaScript moderno, arquitectura modular, programación orientada a objetos y programación funcional.
+El proyecto se desarrolla progresivamente utilizando JavaScript moderno, arquitectura modular, programación orientada a objetos y programación funcional.
 
 ## Tecnologías
 
@@ -13,6 +13,7 @@ El objetivo es desarrollar progresivamente un sistema bancario utilizando JavaSc
 - Node.js
 - npm
 - LocalStorage
+- SweetAlert2
 - Git
 - GitHub
 
@@ -28,7 +29,7 @@ El proyecto utiliza las siguientes capas:
 
 ## Arquitectura actual
 
-```text
+```powershell
 js/
 ├── main.js
 │
@@ -39,7 +40,11 @@ js/
 │   └── Usuario.js
 │
 ├── services/
+│   ├── AuthService.js
 │   └── StorageService.js
+│
+├── ui/
+│   └── DashboardUI.js
 │
 └── utils/
     ├── formatters.js
@@ -47,70 +52,25 @@ js/
     └── validators.js
 ```
 
-## Modelos disponibles
+## Páginas actuales
 
-### Usuario
+### index.html
 
-Representa a una persona registrada dentro del sistema.
+Contiene:
 
-Propiedades principales:
+- Formulario de inicio de sesión.
+- Formulario de registro.
+- Integración de SweetAlert2.
 
-- `id`
-- `nombre`
-- `email`
-- `telefono`
-- `password`
-- `activo`
+### dashboard.html
 
-### Cuenta
+Representa la primera página protegida del sistema.
 
-Representa una cuenta bancaria perteneciente a un usuario.
+Actualmente permite:
 
-Propiedades principales:
-
-- `id`
-- `numeroCuenta`
-- `tipo`
-- `saldo`
-- `usuarioId`
-- `fechaApertura`
-- `activa`
-
-Métodos:
-
-- `depositar()`
-- `retirar()`
-
-### Movimiento
-
-Representa una operación realizada sobre una cuenta bancaria.
-
-Propiedades principales:
-
-- `id`
-- `tipo`
-- `monto`
-- `descripcion`
-- `cuentaOrigen`
-- `cuentaDestino`
-- `saldoResultante`
-- `fecha`
-
-### Banco
-
-Coordina los usuarios, cuentas y movimientos del sistema y aplica reglas del dominio bancario.
-
-Métodos disponibles:
-
-- `agregarUsuario()`
-- `buscarUsuarioPorId()`
-- `agregarCuenta()`
-- `buscarCuentaPorId()`
-- `buscarCuentaPorNumero()`
-- `obtenerCuentasDeUsuario()`
-- `registrarMovimiento()`
-- `realizarDeposito()`
-- `obtenerMovimientosDeCuenta()`
+- Validar la existencia de una sesión.
+- Mostrar al usuario autenticado.
+- Cerrar sesión.
 
 ## Services
 
@@ -118,12 +78,23 @@ Métodos disponibles:
 
 Centraliza la comunicación con LocalStorage.
 
-Métodos disponibles:
+Métodos:
 
 - `guardar()`
 - `obtener()`
 - `eliminar()`
 - `limpiar()`
+
+### AuthService
+
+Centraliza la autenticación y sesión.
+
+Métodos:
+
+- `login()`
+- `logout()`
+- `getCurrentUser()`
+- `protegerRuta()`
 
 ## Claves de almacenamiento
 
@@ -134,79 +105,67 @@ El sistema utiliza:
 - `STORAGE_KEYS.MOVIMIENTOS`
 - `STORAGE_KEYS.SESION`
 
-La clave `SESION` será utilizada en la versión dedicada a autenticación.
+## Registro de usuarios
 
-## Persistencia
+Al registrar un usuario:
 
-Los objetos JavaScript son convertidos a JSON mediante:
+1. Se validan los datos.
+2. Se comprueba que el correo no esté registrado.
+3. Se crea una instancia de `Usuario`.
+4. Se genera un número de cuenta.
+5. Se crea una instancia de `Cuenta`.
+6. Se relaciona la cuenta mediante `usuarioId`.
+7. Usuario y cuenta se guardan en LocalStorage.
 
-```javascript
-JSON.stringify()
-```
+## Autenticación
 
-y recuperados mediante:
+El inicio de sesión:
 
-```javascript
-JSON.parse()
-```
+1. Recupera los usuarios almacenados.
+2. Busca coincidencia de correo y contraseña.
+3. Crea una sesión.
+4. Guarda la sesión en LocalStorage.
+5. Redirige al dashboard.
 
-Después de recuperar los datos se reconstruyen las instancias de:
+## SweetAlert2
 
-- `Usuario`
-- `Cuenta`
-- `Movimiento`
+SweetAlert2 se utiliza para:
 
-para recuperar también el comportamiento definido en sus clases.
-
-## Utilidades disponibles
-
-### Validators
-
-- `validarCampoObligatorio()`
-- `validarMonto()`
-
-### Helpers
-
-- `generarId()`
-
-### Formatters
-
-- `formatCurrency()`
-- `formatDate()`
-- `formatAccountNumber()`
+- Alertas de validación.
+- Registro exitoso.
+- Errores de autenticación.
+- Login exitoso.
+- Confirmación de cierre de sesión.
 
 ## Funcionalidades implementadas
 
-Actualmente el sistema permite desde JavaScript:
+Actualmente el sistema permite:
 
-- Crear usuarios.
-- Crear cuentas.
-- Relacionar cuentas con usuarios.
-- Realizar depósitos.
-- Registrar movimientos de depósito.
-- Aplicar reglas básicas del dominio.
-- Guardar usuarios en LocalStorage.
-- Guardar cuentas en LocalStorage.
-- Guardar movimientos en LocalStorage.
-- Recuperar datos después de recargar la página.
-- Reconstruir instancias de las clases almacenadas.
+- Registrar usuarios.
+- Crear una cuenta bancaria automáticamente.
+- Evitar correos duplicados.
+- Persistir usuarios y cuentas.
+- Iniciar sesión.
+- Mantener la sesión después de recargar.
+- Proteger páginas.
+- Mostrar al usuario autenticado.
+- Cerrar sesión.
+- Mostrar alertas con SweetAlert2.
 
-## Funcionalidades previstas
+## Funcionalidades siguientes
 
 Durante las siguientes versiones se desarrollarán:
 
-- Registro de usuarios desde interfaz.
-- Autenticación.
-- Manejo de sesión.
-- SweetAlert2.
-- Dashboard.
-- Gestión de cuenta.
+- Dashboard bancario completo.
+- Consulta de saldo.
+- Información de cuenta.
+- Gestión del perfil.
+- Depósitos desde interfaz.
 - Transferencias.
-- Historial visual de movimientos.
-- Manipulación del DOM.
-- Eventos.
+- Historial de movimientos.
+- Validaciones adicionales.
 - Pruebas automatizadas con Jest.
 
 ## Versión actual
 
-v0.5.0 — Modelo Banco y reglas del dominio bancario.
+v0.6.0 — Registro, autenticación, sesión y SweetAlert2.
