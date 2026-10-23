@@ -397,11 +397,13 @@ class BancoService {
        OPERACIONES BANCARIAS
     ========================================= */
 
+    // DEPÓSITOS
     realizarDeposito({
         cuentaId,
         monto,
         descripcion = '',
     }) {
+        // Obtenemos la instancia reconstruida del Banco.
         const banco =
             this.obtenerInstanciaBanco();
 
@@ -419,17 +421,18 @@ class BancoService {
         // Persistimos el nuevo estado.
         this.guardarBanco();
 
-
+        // Regresamos el movimiento creado
         return movimiento;
     }
 
-
+    /** TRANSFERENCIA */
     realizarTransferencia({
         cuentaOrigenId,
         numeroCuentaDestino,
         monto,
         descripcion = '',
     }) {
+        // Recuperamos el Banco con todas sus cuentas reconstruidas.
         const banco =
             this.obtenerInstanciaBanco();
 
@@ -454,7 +457,8 @@ class BancoService {
                 numeroDestino,
             );
 
-
+        // Detenemos la operación si el número proporcionado no 
+        // corresponde a una cuenta.
         if (!cuentaDestino) {
             throw new Error(
                 'La cuenta destino no existe.',

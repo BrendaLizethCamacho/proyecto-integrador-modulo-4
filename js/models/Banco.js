@@ -22,7 +22,6 @@ reglas del negocio:
 Se importa el modelo movimiento para crear movimientos automáticamente
 cuando se realicen operaciones como depósitos */
 import { Movimiento } from "./Movimiento.js";
-import { Usuario } from "./Usuario.js";
 
 /** CLASE BANCO
 Clase que se encarga de administrar usuarios, cuentas y movimientos */
@@ -107,13 +106,20 @@ export class Banco {
         return movimiento
     }
 
+    /** MÉTODO OBTENER MOVIMIENTO DE UNA CUENTA
+    Método que se encarga de devolver los movimientos en los que 
+    la cuenta aparezca con cuenta de origen o como cuenta de destino */
+    obtenerMovimientosDeCuenta(cuentaId){
+        return this.movimientos.filter((movimiento) => movimiento.cuentaOrigen === cuentaId || movimiento.cuentaDestino === cuentaId)
+    }
+
     /** MÉTODO REALIZAR DEPÓSITO
     Método que se encarga de:
     * Validar el monto
     * Buscar la cuenta
     * Actualizar el saldo
     * Crear y registrar el movimiento */
-    realizarDeposito({ cuentaId, monto, descripcion }) {
+    realizarDeposito({ cuentaId, monto, descripcion = "" }) {
         //Conversión del monto a número
         const montoNumero = Number(monto)
         // Verificar que el monto sea un número válido mayor que 0
@@ -132,17 +138,167 @@ export class Banco {
             tipo: "DEPOSITO",
             monto: montoNumero,
             descripcion,
-            cuentaOrigen:cuenta.id,
+            cuentaOrigen: cuenta.id,
             saldoResultante: cuenta.saldo
         });
         this.registrarMovimiento(movimiento);
         return movimiento;
     }
 
-    /** MÉTODO OBTENER MOVIMIENTO DE UNA CUENTA
-    Método que se encarga de devolver los movimientos en los que 
-    la cuenta aparezca con cuenta de origen o como cuenta de destino */
-    obtenerMovimientosDeCuenta(cuentaId){
-        return this.movimientos.filter((movimiento) => movimiento.cuentaOrigen === cuentaId || movimiento.cuentaDestino === cuentaId)
+    /** TRANSFERENCIAS */
+    realizarTransferencia({
+        cuentaOrigenId,
+        cuentaDestinoId,
+        monto,
+        descripcion = '',
+    }) {
+        // Convertimos el monto recibido a número.
+        const montoNumerico =
+            Number(monto);
+
+
+        // La transferencia solamente puede
+        // realizarse con un monto mayor a cero.
+        if (
+            !Number.isFinite(
+                montoNumerico,
+            ) ||
+            montoNumerico <= 0
+        ) {
+            throw new Error(
+                'Monto inválido, el monto debe ser mayor a cero.',
+            );
+        }
+
+        // Buscamos las dos cuentas involucradas
+        // utilizando los métodos del Banco.
+        const origen =
+            this.buscarCuentaPorId(
+                cuentaOrigenId,
+            );
+
+		// Buscamos la cuenta que recibirá el dinero.
+        const destino =
+            this.buscarCuentaPorId(
+                cuentaDestinoId,
+            );
+
+		// No podemos continuar si la cuenta origen no existe
+        if (!origen) {
+            throw new Error(
+                'La cuenta origen no existe.',
+            );
+        }
+
+		// Tampoco podemos continuar sin una cuenta destino válida.
+        if (!destino) {
+            throw new Error(
+                'La cuenta destino no existe.',
+            );
+        }
+
+        // No permitimos operar con cuentas
+        // que se encuentren inactivas.
+        if (!origen.activa) {
+            throw new Error(
+                'La cuenta origen no está activa.',
+            );
+        }
+
+		// Evitamos recibir dinero en una cuenta inactiva.
+        if (!destino.activa) {
+            throw new Error(
+                'La cuenta destino no está activa.',
+            );
+        }
+
+        // Una transferencia necesita dos
+        // cuentas diferentes.
+        if (
+            origen.id === destino.id
+        ) {
+            throw new Error(
+                'No puedes transferir dinero a la misma cuenta',
+            );
+        }
+
+        // Comprobamos que la cuenta origen
+        // tenga dinero suficiente.
+        if (
+            origen.saldo <
+            montoNumerico
+        ) {
+            throw new Error(
+                'Saldo insuficiente',
+            );
+        }
+
+        // Retiramos el dinero de la cuenta
+        // que realiza la transferencia.
+        origen.retirar(
+            montoNumerico,
+        );
+
+
+        // Depositamos exactamente el mismo
+        // monto en la cuenta destino.
+        destino.depositar(
+            montoNumerico,
+        );
+
+        // Registramos la operación desde la
+        // perspectiva de la cuenta origen.
+        const movimientoEnviado =
+            new Movimiento({
+                tipo:
+                    'TRANSFERENCIA_ENVIADA',
+                monto:
+                    montoNumerico,
+                descripcion,
+                cuentaOrigen:
+                    origen.id,
+                cuentaDestino:
+                    destino.id,
+                saldoResultante:
+                    origen.saldo,
+            });
+        
+        // Registramos la misma operación desde
+        // la perspectiva de la cuenta receptora.
+        const movimientoRecibido =
+            new Movimiento({
+                tipo:
+                    'TRANSFERENCIA_RECIBIDA',
+                monto:
+                    montoNumerico,
+                descripcion,
+                cuentaOrigen:
+                    origen.id,
+                cuentaDestino:
+                    destino.id,
+                saldoResultante:
+                    destino.saldo,
+            });
+        
+        // Guardamos ambos movimientos dentro
+        // del historial general del Banco.
+        this.registrarMovimiento(
+            movimientoEnviado,
+        );
+	
+		// Agregamos también el movimiento recibido.
+        this.registrarMovimiento(
+            movimientoRecibido,
+        );
+
+
+        // Regresamos toda la información útil
+        // de la operación.
+        return {
+            origen,
+            destino,
+            movimientoEnviado,
+            movimientoRecibido,
+        };
     }
 }
